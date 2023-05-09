@@ -686,7 +686,7 @@ impl<B> PoolClient<B> {
     ) -> Poll<Result<(), Error>> {
         match self.tx {
             #[cfg(feature = "http1")]
-            PoolTx::Http1(ref mut tx) => tx.poll_ready(cx).map_err(|_| todo!()),
+            PoolTx::Http1(ref mut tx) => tx.poll_ready(cx).map_err(Error::tx),
             #[cfg(feature = "http2")]
             PoolTx::Http2(_) => Poll::Ready(Ok(())),
         }
@@ -739,7 +739,7 @@ impl<B: Body + 'static> PoolClient<B> {
             #[cfg(feature = "http2")]
             PoolTx::Http2(ref mut tx) => Either::Right(tx.send_request(req)),
         }
-        .map_err(|_| todo!());
+        .map_err(Error::tx);
 
         #[cfg(feature = "http1")]
         #[cfg(not(feature = "http2"))]
